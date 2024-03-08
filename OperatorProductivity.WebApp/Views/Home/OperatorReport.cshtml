@@ -1,0 +1,114 @@
+﻿@using OperatorProductivity.Application.DTO
+@model OperatorProductivityResultDTO
+
+@{
+    ViewBag.Title = "Operator Report";
+}
+
+<h2>Operator Report</h2>
+
+<form id="filterForm">
+    <label for="startDate">Start Date:</label>
+    <input type="date" id="startDate" name="startDate" value="@Model.CurrentFilter.StartDate?.ToString("yyyy-MM-dd")">
+
+    <label for="endDate">End Date:</label>
+    <input type="date" id="endDate" name="endDate" value="@Model.CurrentFilter.EndDate?.ToString("yyyy-MM-dd")">
+
+    <label for="website">Website:</label>
+    <select id="website" name="website">
+        <option value="">ALL WEBSITES</option>
+    </select>
+
+    <label for="device">Device:</label>
+    <select id="device" name="device">
+        <option value="">ALL DEVICES</option>
+    </select>
+
+    <button type="button" onclick="applyFilter()">Apply</button>
+</form>
+
+<table>
+    <thead>
+        <tr>
+            <th>S.No.</th>
+            <th>Operator Name</th>
+            <th>Proactive Sent</th>
+            <th>Proactive Answered</th>
+            <th>Proactive Response Rate</th>
+            <th>Reactive Received</th>
+            <th>Reactive Answered</th>
+            <th>Reactive Response Rate</th>
+            <th>Total Chat Length</th>
+            <th>Average Chat Length</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.Results)
+        {
+            <tr>
+                <td>@item.OperatorID</td>
+                <td>@item.Name</td>
+                <td>@item.ProactiveSent</td>
+                <td>@item.ProactiveAnswered</td>
+                <td>@item.ProactiveResponseRate</td>
+                <td>@item.ReactiveReceived</td>
+                <td>@item.ReactiveAnswered</td>
+                <td>@item.ReactiveResponseRate</td>
+                <td>@item.TotalChatLength</td>
+                <td>@item.AverageChatLength</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@section scripts {
+    <script>
+        // Function to fetch filter values from a controller action
+        function fetchFilterValues() {
+            $.ajax({
+                url: '/Home/GetFilterValues', // Update the URL with the correct controller action
+                type: 'GET',
+                success: function (data) {
+                    // Populate the Website dropdown
+                    var websiteDropdown = $('#website');
+                    websiteDropdown.empty(); // Clear previous options
+                    websiteDropdown.append($('<option>', { value: '', text: 'ALL WEBSITES' }));
+                    $.each(data.websites, function (index, website) {
+                        websiteDropdown.append($('<option>', { value: website, text: website }));
+                    });
+
+                    // Populate the Device dropdown
+                    var deviceDropdown = $('#device');
+                    deviceDropdown.empty(); // Clear previous options
+                    deviceDropdown.append($('<option>', { value: '', text: 'ALL DEVICES' }));
+                    $.each(data.devices, function (index, device) {
+                        deviceDropdown.append($('<option>', { value: device, text: device }));
+                    });
+                },
+                error: function () {
+                    console.error('Error fetching filter values.');
+                }
+            });
+        }
+
+        // Function to apply filters
+        function applyFilter() {
+            var startDate = $('#startDate').val();
+            var endDate = $('#endDate').val();
+            var website = $('#website').val();
+            var device = $('#device').val();
+
+            // Redirect to the controller action with the selected filters
+            window.location.href = "/Home/OperatorReport?" +
+                "startDate=" + startDate +
+                "&endDate=" + endDate +
+                "&website=" + website +
+                "&device=" + device;
+        }
+
+        // Call the function to fetch filter values when the page loads
+        $(document).ready(function () {
+            fetchFilterValues();
+        });
+    </script>
+}

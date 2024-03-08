@@ -1,4 +1,4 @@
-namespace OperatorProductivity.Web.Models
+namespace OperatorProductivity.WebApp.Models
 {
     public class ErrorViewModel
     {
